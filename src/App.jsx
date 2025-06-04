@@ -1,12 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { useState, useRef } from 'react';
 
 const PHRASES = [
   "Bonjour, comment allez-vous ?",
   "Le ciel est bleu aujourd'hui.",
   "J'aime apprendre le développement web.",
-  // Ajoutez d'autres phrases ici si nécessaire
 ];
 
 export default function AudioCollectionApp() {
@@ -63,38 +60,31 @@ export default function AudioCollectionApp() {
 
   if (step === 'intro') {
     return (
-      <Card className="max-w-xl mx-auto mt-10 p-6 space-y-4">
-        <CardContent>
-          <h1 className="text-xl font-bold">Bienvenue</h1>
-          <p>Merci de participer. Veuillez saisir votre âge et genre, puis confirmer votre consentement.</p>
+      <div className="card">
+        <h1>Bienvenue</h1>
+        <p>Merci de participer. Veuillez saisir votre âge et genre, puis confirmer votre consentement.</p>
+        <input
+          type="number"
+          placeholder="Âge"
+          value={age}
+          onChange={(e) => setAge(e.target.value)}
+        />
+        <select value={gender} onChange={(e) => setGender(e.target.value)}>
+          <option value="">Genre</option>
+          <option value="Homme">Homme</option>
+          <option value="Femme">Femme</option>
+          <option value="Autre">Autre</option>
+        </select>
+        <label>
           <input
-            type="number"
-            placeholder="Âge"
-            className="w-full p-2 border rounded"
-            value={age}
-            onChange={(e) => setAge(e.target.value)}
+            type="checkbox"
+            checked={consent}
+            onChange={(e) => setConsent(e.target.checked)}
           />
-          <select
-            className="w-full p-2 border rounded"
-            value={gender}
-            onChange={(e) => setGender(e.target.value)}
-          >
-            <option value="">Genre</option>
-            <option value="Homme">Homme</option>
-            <option value="Femme">Femme</option>
-            <option value="Autre">Autre</option>
-          </select>
-          <label className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              checked={consent}
-              onChange={(e) => setConsent(e.target.checked)}
-            />
-            <span>Je consens à participer à cette collecte anonyme.</span>
-          </label>
-          <Button disabled={!age || !gender || !consent} onClick={() => setStep('record')}>Commencer</Button>
-        </CardContent>
-      </Card>
+          Je consens à participer à cette collecte anonyme.
+        </label>
+        <button disabled={!age || !gender || !consent} onClick={() => setStep('record')}>Commencer</button>
+      </div>
     );
   }
 
@@ -102,34 +92,30 @@ export default function AudioCollectionApp() {
     const phrase = PHRASES[phraseIndex];
 
     return (
-      <Card className="max-w-xl mx-auto mt-10 p-6 space-y-4">
-        <CardContent>
-          <h2 className="text-lg font-semibold">Phrase {phraseIndex + 1} / {PHRASES.length}</h2>
-          <p className="text-xl italic">"{phrase}"</p>
-          <div className="space-x-2">
-            {!isRecording ? (
-              <Button onClick={startRecording}>Enregistrer</Button>
-            ) : (
-              <Button onClick={stopRecording}>Arrêter</Button>
-            )}
-            <Button onClick={restartPhrase} disabled={recordings.length === 0}>Réenregistrer</Button>
-            <Button onClick={nextPhrase} disabled={recordings.length <= phraseIndex}>Phrase suivante</Button>
-            <Button onClick={() => setStep('done')}>Terminer la session</Button>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="card">
+        <h2>Phrase {phraseIndex + 1} / {PHRASES.length}</h2>
+        <p className="phrase">"{phrase}"</p>
+        <div className="button-row">
+          {!isRecording ? (
+            <button onClick={startRecording}>Enregistrer</button>
+          ) : (
+            <button onClick={stopRecording}>Arrêter</button>
+          )}
+          <button onClick={restartPhrase} disabled={recordings.length === 0}>Réenregistrer</button>
+          <button onClick={nextPhrase} disabled={recordings.length <= phraseIndex}>Phrase suivante</button>
+          <button onClick={() => setStep('done')}>Terminer la session</button>
+        </div>
+      </div>
     );
   }
 
   if (step === 'done') {
     return (
-      <Card className="max-w-xl mx-auto mt-10 p-6 space-y-4 text-center">
-        <CardContent>
-          <h2 className="text-xl font-bold">Merci pour votre participation</h2>
-          <p>{recordings.length} enregistrements sauvegardés.</p>
-          <Button onClick={resetSession}>Nouvelle session</Button>
-        </CardContent>
-      </Card>
+      <div className="card text-center">
+        <h2>Merci pour votre participation</h2>
+        <p>{recordings.length} enregistrements sauvegardés.</p>
+        <button onClick={resetSession}>Nouvelle session</button>
+      </div>
     );
   }
 
