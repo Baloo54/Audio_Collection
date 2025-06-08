@@ -23,7 +23,7 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         context: .
-        file: ../../backend/   # Dockerfile pour backend
+        file: ../../backend/Dockerfile   # Dockerfile pour backend
         push: true
         tags: ghcr.io/baloo54/backend:latest
 
@@ -31,6 +31,6 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         context: .
-        file: ../../Dockerfile  # Dockerfile pour frontend
+        file: ../../frontend/Dockerfile  # Dockerfile pour frontend
         push: true
         tags: ghcr.io/baloo54/frontend:latest
