@@ -41,7 +41,7 @@ export default function RecordStep({
 
       <div className="button-row">
         {!isRecording ? (
-          <button onClick={startRecording}>Enregistrer</button>
+          <button onClick={startRecording} disabled={recordings.length !== 0}>Enregistrer</button>
         ) : (
           <button onClick={stopRecording}>Arrêter</button>
         )}

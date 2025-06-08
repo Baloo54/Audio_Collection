@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { PHRASES } from '@/components/Phrases.jsx';
+import GetRandomPhrases from '@/components/GetRandomPhrases';
 import IntroStep from '@/components/IntroStep.jsx';
 import RecordStep from '@/components/RecordStep.jsx';
 import DoneStep from '@/components/DoneStep.jsx';
@@ -10,23 +10,24 @@ import DoneStep from '@/components/DoneStep.jsx';
  */
 export default function AudioCollectionApp() {
   // === États liés à la progression de l'application ===
-  const [step, setStep] = useState('intro');           // Étape actuelle : 'intro', 'record', ou 'done'
+  const [step, setStep] = useState('intro');
 
   // === États liés aux informations utilisateur ===
   const [age, setAge] = useState('');
   const [gender, setGender] = useState('');
   const [consent, setConsent] = useState(false);
+  const [phraseCount, setPhraseCount] = useState(5); // <== changé nom
 
   // === États liés à l'enregistrement ===
-  const [phraseIndex, setPhraseIndex] = useState(0);   // Index de la phrase actuelle dans PHRASES
-  const [recordings, setRecordings] = useState([]);    // Liste des enregistrements réalisés
-  const [isRecording, setIsRecording] = useState(false); // Statut d'enregistrement en cours
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [recordings, setRecordings] = useState([]);
+  const [isRecording, setIsRecording] = useState(false);
+  const [phrasesToRecord, setPhrasesToRecord] = useState([]);
 
   // === Références pour MediaRecorder et les données audio ===
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
 
-  // === Démarrer un enregistrement ===
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -41,7 +42,7 @@ export default function AudioCollectionApp() {
 
       mediaRecorder.onstop = () => {
         const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
-        const phrase = PHRASES[phraseIndex];
+        const phrase = phrasesToRecord[phraseIndex];
         setRecordings((prev) => [...prev, { phrase, audio: blob }]);
       };
 
@@ -52,38 +53,41 @@ export default function AudioCollectionApp() {
     }
   };
 
-  // === Arrêter l'enregistrement ===
   const stopRecording = () => {
     mediaRecorderRef.current?.stop();
     setIsRecording(false);
   };
 
-  // === Recommencer la phrase actuelle ===
   const restartPhrase = () => {
     setRecordings((prev) => prev.slice(0, -1));
     setIsRecording(false);
   };
 
-  // === Passer à la phrase suivante ou terminer ===
   const nextPhrase = () => {
-    if (phraseIndex + 1 < PHRASES.length) {
+    if (phraseIndex + 1 < phrasesToRecord.length) {
       setPhraseIndex((prev) => prev + 1);
     } else {
       setStep('done');
     }
   };
 
-  // === Réinitialiser la session ===
   const resetSession = () => {
     setStep('intro');
     setAge('');
     setGender('');
     setConsent(false);
+    setPhraseCount(5); // reset
     setPhraseIndex(0);
     setRecordings([]);
+    setPhrasesToRecord([]);
   };
 
-  // === Affichage dynamique en fonction de l'étape ===
+  const handleStart = () => {
+    const selectedPhrases = GetRandomPhrases(phraseCount); // <== utilise phraseCount
+    setPhrasesToRecord(selectedPhrases);
+    setStep('record');
+  };
+
   switch (step) {
     case 'intro':
       return (
@@ -91,20 +95,22 @@ export default function AudioCollectionApp() {
           age={age}
           gender={gender}
           consent={consent}
+          phraseCount={phraseCount}
           setAge={setAge}
           setGender={setGender}
           setConsent={setConsent}
-          onStart={() => setStep('record')}
+          setPhraseCount={setPhraseCount}
+          onStart={handleStart}
         />
       );
-    
+
     case 'record':
       return (
         <RecordStep
           phraseIndex={phraseIndex}
           recordings={recordings}
           isRecording={isRecording}
-          PHRASES={PHRASES}
+          PHRASES={phrasesToRecord}
           startRecording={startRecording}
           stopRecording={stopRecording}
           restartPhrase={restartPhrase}
@@ -112,7 +118,7 @@ export default function AudioCollectionApp() {
           goToDone={() => setStep('done')}
         />
       );
-    
+
     case 'done':
       return (
         <DoneStep
@@ -120,8 +126,8 @@ export default function AudioCollectionApp() {
           onReset={resetSession}
         />
       );
-    
+
     default:
-      return null; // Cas de secours si un step non prévu est défini
+      return null;
   }
 }

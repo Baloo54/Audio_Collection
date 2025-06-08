@@ -1,48 +1,67 @@
-export default function IntroStep({ age, gender, consent, setAge, setGender, setConsent, onStart }) {
+export default function IntroStep({
+  age,
+  gender,
+  consent,
+  phraseCount,
+  setAge,
+  setGender,
+  setConsent,
+  setPhraseCount,
+  onStart
+}) {
   return (
     <div className="card">
       {/* Titre de bienvenue */}
       <h1>Bienvenue</h1>
 
       {/* Instructions pour l'utilisateur */}
-      <h2>Merci pour votre participation!</h2>
-      
-      <p>Veuillez saisir votre âge et genre, puis confirmer votre consentement.</p>
+      <h2>Merci pour votre participation !</h2>
+
+      <p>Veuillez saisir votre âge, genre, le nombre de phrases à enregistrer, puis confirmer votre consentement.</p>
 
       {/* Champ de saisie pour l'âge */}
       <input
-        type="number"                // Type numérique pour limiter la saisie à des nombres
-        placeholder="Âge"            // Texte indicatif affiché quand le champ est vide
-        value={age}                  // Valeur contrôlée, liée à l'état `age`
-        onChange={(e) => setAge(e.target.value)} // Met à jour l'âge à chaque modification
+        type="number"
+        placeholder="Âge"
+        value={age}
+        onChange={(e) => setAge(e.target.value)}
       />
 
-      {/* Liste déroulante pour sélectionner le genre */}
+      {/* Liste déroulante pour le genre */}
       <select
-        value={gender}               // Valeur contrôlée, liée à l'état `gender`
-        onChange={(e) => setGender(e.target.value)} // Met à jour le genre à chaque changement
+        value={gender}
+        onChange={(e) => setGender(e.target.value)}
       >
-        <option value="">Genre</option>  {/* Option par défaut sans valeur */}
+        <option value="">Genre</option>
         <option value="Homme">Homme</option>
         <option value="Femme">Femme</option>
         <option value="Autre">Autre</option>
       </select>
 
-      {/* Case à cocher pour consentement */}
+      {/* Champ pour le nombre de phrases */}
+      <input
+        type="number"
+        placeholder="Nombre de phrases à enregistrer"
+        value={phraseCount}
+        onChange={(e) => setPhraseCount(Number(e.target.value))}
+        min={1}
+        max={100}
+      />
+
+      {/* Consentement */}
       <label>
         <input
-          type="checkbox"            // Case à cocher
-          checked={consent}          // Valeur contrôlée liée à `consent`
-          onChange={(e) => setConsent(e.target.checked)} // Met à jour le consentement à chaque changement
+          type="checkbox"
+          checked={consent}
+          onChange={(e) => setConsent(e.target.checked)}
         />
         Je consens à participer à cette collecte anonyme.
       </label>
 
-
-      {/* Bouton pour démarrer la session */}
+      {/* Bouton de démarrage */}
       <button
-        disabled={!age || !gender || !consent} // Désactivé tant que âge, genre ou consentement manquent
-        onClick={onStart}                      // Appelle la fonction `onStart` quand on clique
+        disabled={!age || !gender || !consent || !phraseCount}
+        onClick={onStart}
       >
         Commencer
       </button>
