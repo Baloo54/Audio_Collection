@@ -4,42 +4,37 @@ import JSZip from 'jszip';
 export default function DoneStep({ recordings, age, gender, consent, numPhrases, onReset }) {
   const [isSending, setIsSending] = useState(false);
 
-  const handleSendData = async () => {
+    const handleSendData = async () => {
     setIsSending(true);
 
     try {
       const zip = new JSZip();
 
-      // Ajouter tous les fichiers audio dans le ZIP
       recordings.forEach(({ audio }, index) => {
         const fileName = `audio_${index + 1}.webm`;
         zip.file(fileName, audio);
       });
 
-      // Générer le ZIP Blob
       const zipBlob = await zip.generateAsync({ type: 'blob' });
 
-      // Créer FormData et ajouter le ZIP
       const formData = new FormData();
       formData.append('audioZip', zipBlob, 'audios.zip');
 
-      // Ajouter les phrases sérialisées en JSON
       const phrasesArray = recordings.map(r => r.phrase);
       formData.append('phrases', JSON.stringify(phrasesArray));
 
-      // Ajouter les infos utilisateur
       formData.append('age', age ?? '');
       formData.append('gender', gender ?? '');
       formData.append('consent', consent !== undefined ? consent.toString() : '');
       formData.append('numPhrases', numPhrases !== undefined ? numPhrases.toString() : '');
 
-      // Envoyer la requête POST
       const response = await fetch('http://localhost:5000/api/upload-zip', {
         method: 'POST',
         body: formData,
       });
 
       if (response.ok) {
+        // Pas besoin de parser, accepte même une réponse vide
         alert('✅ Données envoyées avec succès.');
       } else {
         const errorText = await response.text();
@@ -53,6 +48,7 @@ export default function DoneStep({ recordings, age, gender, consent, numPhrases,
       setIsSending(false);
     }
   };
+
 
   return (
     <div className="card text-center" style={{ padding: '1rem', maxWidth: '400px', margin: 'auto' }}>
