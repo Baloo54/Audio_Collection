@@ -1,3 +1,7 @@
+/**
+ * Étape d'introduction de l'application.
+ * Recueille les informations de l'utilisateur : âge, genre, nombre de phrases, consentement.
+ */
 export default function IntroStep({
   age,
   gender,
@@ -7,30 +11,33 @@ export default function IntroStep({
   setGender,
   setConsent,
   setPhraseCount,
-  onStart
+  onStart,
 }) {
   return (
     <div className="card">
-      {/* Titre de bienvenue */}
+      {/* Titre et instructions */}
       <h1>Bienvenue</h1>
-
-      {/* Instructions pour l'utilisateur */}
       <h2>Merci pour votre participation !</h2>
+      <p>
+        Veuillez saisir votre âge, votre genre, le nombre de phrases à enregistrer,
+        puis confirmer votre consentement.
+      </p>
 
-      <p>Veuillez saisir votre âge, genre, le nombre de phrases à enregistrer, puis confirmer votre consentement.</p>
-
-      {/* Champ de saisie pour l'âge */}
+      {/* Champ âge */}
       <input
         type="number"
         placeholder="Âge"
         value={age}
         onChange={(e) => setAge(e.target.value)}
+        min={1}
+        className="form-input"
       />
 
-      {/* Liste déroulante pour le genre */}
+      {/* Sélection du genre */}
       <select
         value={gender}
         onChange={(e) => setGender(e.target.value)}
+        className="form-input"
       >
         <option value="">Genre</option>
         <option value="Homme">Homme</option>
@@ -38,7 +45,7 @@ export default function IntroStep({
         <option value="Autre">Autre</option>
       </select>
 
-      {/* Champ pour le nombre de phrases */}
+      {/* Nombre de phrases à enregistrer */}
       <input
         type="number"
         placeholder="Nombre de phrases à enregistrer"
@@ -46,10 +53,11 @@ export default function IntroStep({
         onChange={(e) => setPhraseCount(Number(e.target.value))}
         min={1}
         max={100}
+        className="form-input"
       />
 
-      {/* Consentement */}
-      <label>
+      {/* Case de consentement */}
+      <label className="form-checkbox">
         <input
           type="checkbox"
           checked={consent}
@@ -58,10 +66,11 @@ export default function IntroStep({
         Je consens à participer à cette collecte anonyme.
       </label>
 
-      {/* Bouton de démarrage */}
+      {/* Bouton pour démarrer l'enregistrement */}
       <button
         disabled={!age || !gender || !consent || !phraseCount}
         onClick={onStart}
+        className="purple-badger-btn"
       >
         Commencer
       </button>

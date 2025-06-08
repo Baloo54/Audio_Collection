@@ -1,6 +1,36 @@
+/* Variables globales pour thème clair */
+:root {
+  --color-bg-start: #e0f7fa;
+  --color-bg-end: #e1bee7;
+  --color-card-bg: rgba(255, 255, 255, 0.8);
+  --color-border: #ddd;
+  --color-text: #333;
+  --color-primary: #4caf50;
+  --color-primary-hover: #388e3c;
+  --color-disabled: #aaa;
+  --color-recording: red;
+  --font-family: 'Inter', sans-serif;
+  --box-shadow-card: 0 10px 30px rgba(0, 0, 0, 0.15);
+  --box-shadow-btn: 0 4px 10px rgba(123, 47, 247, 0.6);
+}
+
+/* Variables pour thème sombre */
+.dark-mode {
+  --color-bg-start: #1e1e1e;
+  --color-bg-end: #3a3a3a;
+  --color-card-bg: rgba(40, 40, 40, 0.9);
+  --color-border: #555;
+  --color-text: #eee;
+  --color-primary: #81c784;
+  --color-primary-hover: #519657;
+  --color-disabled: #666;
+  --color-recording: #ff5252;
+  --box-shadow-card: 0 10px 30px rgba(0, 0, 0, 0.8);
+  --box-shadow-btn: 0 4px 10px rgba(129, 199, 132, 0.7);
+}
+
 /* ========================================
-   Reset box-sizing pour une gestion simple 
-   du padding et border dans la largeur
+   Reset box-sizing et outline focus
 ======================================== */
 *,
 *::before,
@@ -8,109 +38,93 @@
   box-sizing: border-box;
 }
 
+button:focus,
+input:focus,
+select:focus {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 /* ========================================
-   Style global du body 
-   - police Google Fonts 'Inter'
-   - fond dégradé doux
-   - padding interne
-   - flexbox pour centrer le contenu horizontalement
+   Style global du body avec variables 
 ======================================== */
 body {
   margin: 0;
   padding: 20px;
-  font-family: 'Inter', sans-serif;
-  background: linear-gradient(to right, #e0f7fa, #e1bee7);
+  font-family: var(--font-family);
+  background: linear-gradient(to right, var(--color-bg-start), var(--color-bg-end));
   min-height: 100vh;
 
-  /* Flexbox centré horizontalement, départ vertical */
   display: flex;
   justify-content: center;
   align-items: flex-start;
+  color: var(--color-text);
 }
 
 /* ========================================
-   Conteneur principal "card"
-   - largeur max pour limiter la taille sur grands écrans
-   - width 100% pour s'adapter aux petits écrans
-   - margin auto pour centrer horizontalement
-   - padding confortable
-   - fond blanc semi-transparent + flou en arrière-plan
-   - bord arrondi et ombre portée
+   Conteneur principal "card" avec fallback
 ======================================== */
 .card {
-  width: 100%;          /* Prend toute la largeur dispo */
-  max-width: 600px;     /* Max largeur sur grands écrans */
-  margin: 0 auto;       /* Centre horizontalement */
-  background-color: #ffffffcc; /* blanc semi-transparent */
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: var(--color-card-bg);
   padding: 24px;
   border-radius: 16px;
-  border: 1px solid #ddd;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--box-shadow-card);
+
+  /* Fallback si backdrop-filter pas supporté */
+  background-clip: padding-box;
+
+  /* Blur en arrière-plan */
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
   display: flex;
-  flex-direction: column; /* Colonne pour aligner les éléments */
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
-  gap: 5px;             /* Espace entre les éléments */
+  gap: 5px;
 }
 
-/* ========================================
-   Style des titres
-   - taille, couleur, espacement
-   - alignement centré
-======================================== */
+/* Titres */
 h1, h2, h3 {
-  color: #333;
+  color: var(--color-text);
 }
 
-/* ========================================
-   Rendre la taille de la police responsive
-   - taille base : 1rem = 16px
-   - ajustement selon largeur écran
-======================================== */
+/* Font-size responsive */
 html {
   font-size: 16px;
 }
-
-/* Sur petits écrans (moins de 600px), réduire légèrement la police */
 @media (max-width: 600px) {
-  html {
-    font-size: 14px;
-  }
+  html { font-size: 14px; }
 }
-
-/* Sur très grands écrans (plus de 1200px), augmenter la police */
 @media (min-width: 1200px) {
-  html {
-    font-size: 18px;
-  }
+  html { font-size: 18px; }
 }
 
-/* ========================================
-   Quelques styles supplémentaires 
-   pour les boutons, inputs, etc.
-======================================== */
+/* Boutons */
 button {
   padding: 10px 20px;
   font-size: 1rem;
   border-radius: 8px;
   border: none;
-  background-color: #4caf50;
+  background-color: var(--color-primary);
   color: white;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
-
 button:disabled {
-  background-color: #aaa;
+  background-color: var(--color-disabled);
   cursor: not-allowed;
 }
-
 button:hover:not(:disabled) {
-  background-color: #388e3c;
+  background-color: var(--color-primary-hover);
 }
 
+/* Inputs / Select */
 input[type="number"],
 select {
   width: 100%;
@@ -119,23 +133,26 @@ select {
   margin-bottom: 16px;
   border: 1px solid #ccc;
   border-radius: 8px;
+  color: var(--color-text);
+  background-color: white;
+}
+.dark-mode input[type="number"],
+.dark-mode select {
+  background-color: #555;
+  border-color: #888;
+  color: var(--color-text);
 }
 
-/* ========================================
-   Alignement et espacement des boutons
-======================================== */
+/* Conteneur boutons */
 .button-row {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 16px;
-  justify-content: center; /* Centrer les boutons */
+  justify-content: center;
 }
 
-
-/* ========================================
-   Style pour le player audio et lien de téléchargement
-======================================== */
+/* Audio controls */
 .audio-controls {
   margin-bottom: 20px;
   display: flex;
@@ -151,27 +168,23 @@ audio {
   border: 1px solid #ccc;
 }
 
-/* ========================================
-   Animation pulse pour le point rouge
-======================================== */
+/* Animation pulse plus douce */
 @keyframes pulse {
   0% { transform: scale(1); opacity: 1; }
   50% { transform: scale(1.4); opacity: 0.6; }
   100% { transform: scale(1); opacity: 1; }
 }
-
-/* Style du point rouge animé visible lors de l'enregistrement */
 .recording-indicator {
   margin-left: 10px;
   display: inline-block;
   width: 10px;
   height: 10px;
-  background-color: red;
+  background-color: var(--color-recording);
   border-radius: 50%;
-  animation: pulse 1s infinite;
+  animation: pulse 1.2s ease-in-out infinite;
 }
 
-/* Style inspiré “Purple Badger” pour le bouton Écouter */
+/* Bouton Purple Badger */
 .purple-badger-btn {
   background: linear-gradient(135deg, #7b2ff7, #a01eff);
   border: none;
@@ -181,15 +194,13 @@ audio {
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(123, 47, 247, 0.6);
+  box-shadow: var(--box-shadow-btn);
   transition: background 0.3s ease, transform 0.15s ease;
 }
-
 .purple-badger-btn:hover {
   background: linear-gradient(135deg, #8c45f8, #b329ff);
   transform: translateY(-2px);
 }
-
 .purple-badger-btn:active {
   transform: translateY(0);
   box-shadow: 0 2px 5px rgba(123, 47, 247, 0.4);
