@@ -22,15 +22,15 @@ jobs:
     - name: Build and push backend Docker image
       uses: docker/build-push-action@v4
       with:
-        context: .
-        file: ../../backend/Dockerfile   # Dockerfile pour backend
+        context: ./backend
+        file: Dockerfile   # Dockerfile pour backend
         push: true
         tags: ghcr.io/baloo54/backend:latest
 
     - name: Build and push frontend Docker image
       uses: docker/build-push-action@v4
       with:
-        context: .
-        file: ../../frontend/Dockerfile  # Dockerfile pour frontend
+        context: ./frontend
+        file: Dockerfile  # Dockerfile pour frontend
         push: true
         tags: ghcr.io/baloo54/frontend:latest
