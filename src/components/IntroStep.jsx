@@ -5,7 +5,9 @@ export default function IntroStep({ age, gender, consent, setAge, setGender, set
       <h1>Bienvenue</h1>
 
       {/* Instructions pour l'utilisateur */}
-      <p>Merci de participer. Veuillez saisir votre âge et genre, puis confirmer votre consentement.</p>
+      <h2>Merci pour votre participation!</h2>
+      
+      <p>Veuillez saisir votre âge et genre, puis confirmer votre consentement.</p>
 
       {/* Champ de saisie pour l'âge */}
       <input
@@ -36,7 +38,6 @@ export default function IntroStep({ age, gender, consent, setAge, setGender, set
         Je consens à participer à cette collecte anonyme.
       </label>
 
-      <br /> {/* Saut de ligne pour espacer */}
 
       {/* Bouton pour démarrer la session */}
       <button
