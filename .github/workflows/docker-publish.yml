@@ -25,7 +25,7 @@ jobs:
         context: .
         file: ../../backend/   # Dockerfile pour backend
         push: true
-        tags: ghcr.io/Baloo54/backend:latest
+        tags: ghcr.io/baloo54/backend:latest
 
     - name: Build and push frontend Docker image
       uses: docker/build-push-action@v4
@@ -33,4 +33,4 @@ jobs:
         context: .
         file: ../../Dockerfile  # Dockerfile pour frontend
         push: true
-        tags: ghcr.io/Baloo54/frontend:latest
+        tags: ghcr.io/baloo54/frontend:latest
