@@ -120,12 +120,17 @@ export default function AudioCollectionApp() {
       );
 
     case 'done':
-      return (
-        <DoneStep
-          recordings={recordings}
-          onReset={resetSession}
-        />
-      );
+    return (
+      <DoneStep
+        recordings={recordings}
+        age={age}
+        gender={gender}
+        consent={consent}
+        numPhrases={numPhrases}
+        onReset={resetSession}
+      />
+    );
+
 
     default:
       return null;
