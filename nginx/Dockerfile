@@ -1,7 +1,13 @@
 FROM nginx:alpine
 
 # Copie la config nginx
-COPY conf.d/ /etc/nginx/conf.d/
+RUN rm /etc/nginx/conf.d/default.conf
+
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
+COPY nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
+
+# expose les ports
+EXPOSE 80 443
 
 # Copie l'éventuel script de démarrage
 COPY entrypoint.sh /entrypoint.sh
