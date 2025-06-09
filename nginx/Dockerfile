@@ -8,8 +8,8 @@ COPY entrypoint.sh /entrypoint.sh
 
 # Crée un utilisateur non-root et rend l'entrée exécutable
 RUN chmod +x /entrypoint.sh \
-    && addgroup -S nginxgroup \
-    && adduser -S nginxuser -G nginxgroup \
+    && addgroup -g 1001 -S nginxgroup \
+    && adduser -u 1001 -S nginxuser -G nginxgroup \
     && chown -R nginxuser:nginxgroup /etc/nginx /entrypoint.sh /var/cache/nginx /var/run /var/log/nginx
 
 # Utilise un utilisateur non-root
