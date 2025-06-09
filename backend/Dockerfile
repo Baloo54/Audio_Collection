@@ -1,24 +1,19 @@
-# Utilise une image Node.js légère
 FROM node:18-alpine
 
-# Définit le dossier de travail à l'intérieur du container
+# Crée un utilisateur non-root sans dépendances inutiles
+RUN adduser -D -h /app appuser
+
+# Définit le dossier de travail et change les droits
 WORKDIR /app
-
-# Copie les fichiers package.json et package-lock.json du backend
 COPY package*.json ./
+RUN npm install --production
+COPY . .
 
-# Installe uniquement les dépendances de production
-RUN npm install --production \
-    && RUN useradd -m appuser
+# Donne la propriété à l'utilisateur appuser
+RUN chown -R appuser /app
 
-# Copie tout le code du backend dans le container
-COPY ./ .
-
-# Change l'utilisateur pour exécuter le serveur
+# Exécute le serveur en tant que appuser
 USER appuser
 
-# Expose le port utilisé par ton serveur Node.js
 EXPOSE 5000
-
-# Démarre le serveur
 CMD ["node", "Serveur.js"]

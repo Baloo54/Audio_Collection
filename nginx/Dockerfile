@@ -1,16 +1,20 @@
 FROM nginx:alpine
 
-# Copie de la config NGINX
+# Copie la config nginx
 COPY conf.d/ /etc/nginx/conf.d/
 
-# Entrypoint personnalisé si besoin
+# Copie l'éventuel script de démarrage
 COPY entrypoint.sh /entrypoint.sh
+
+# Crée un utilisateur non-root et rend l'entrée exécutable
 RUN chmod +x /entrypoint.sh \
-    && addgroup -S nginxgroup && adduser -S nginxuser -G nginxgroup
+    && addgroup -S nginxgroup \
+    && adduser -S nginxuser -G nginxgroup \
+    && chown -R nginxuser:nginxgroup /etc/nginx /entrypoint.sh /var/cache/nginx /var/run /var/log/nginx
 
-# Change l'utilisateur pour exécuter NGINX
-
+# Utilise un utilisateur non-root
 USER nginxuser
 
+# Définition du point d'entrée et commande de lancement
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]
