@@ -35,7 +35,7 @@ services:
       - db_user
       - db_password
     volumes:
-      - ./certs/postgres:/app
+      - ./certs/postgres:/app/certs/
     networks:
       - my_encrypted_network
 
