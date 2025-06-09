@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   db:
-    image: postgres:15-alpine
+    image: ghcr.io/baloo54/database:latest
     environment:
       POSTGRES_USER_FILE: /run/secrets/db_user
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password

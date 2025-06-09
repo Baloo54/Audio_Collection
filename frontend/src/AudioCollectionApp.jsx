@@ -38,7 +38,7 @@ export default function AudioCollectionApp() {
   useEffect(() => {
     async function fetchCsrfToken() {
       try {
-        const res = await fetch('https://localhost/api/csrf-token', {
+        const res = await fetch('/api/csrf-token', {
           credentials: 'include', // important pour les cookies
         });
         const data = await res.json();
