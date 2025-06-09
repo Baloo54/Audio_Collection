@@ -10,8 +10,7 @@ RUN chmod +x /entrypoint.sh \
     && addgroup -g 1001 -S nginxgroup \
     && adduser -u 1001 -S nginxuser -G nginxgroup \
     && chown -R nginxuser:nginxgroup /etc/nginx /entrypoint.sh /var/cache/nginx /var/run /var/log/nginx \
-    && mkdir -p /run && chown nginxuser:nginxgroup /run \
-    && rm /etc/nginx/conf.d/default.conf
+    && mkdir -p /run && chown nginxuser:nginxgroup /run 
 
 # Expose les ports HTTP et HTTPS
 EXPOSE 80 443
