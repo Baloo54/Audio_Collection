@@ -22,8 +22,6 @@ services:
       - SYS_PTRACE
       - MKNOD
     restart: unless-stopped
-    user: "999:999" # utilise un utilisateur non-root
-
   app:
     image: ghcr.io/baloo54/backend:latest
     depends_on:

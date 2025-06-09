@@ -33,7 +33,3 @@ jobs:
         tags: ghcr.io/baloo54/frontend:latest
     - name : Build and push Database Docker image
       uses: docker/build-push-action@v4
-      with:
-        context: ./postgres
-        push: true
-        tags: ghcr.io/baloo54/database:latest
