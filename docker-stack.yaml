@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   db:
-    image: ghcr.io/baloo54/database:latest
+    image: ghcr.io/baloo54/postgres:latest
     environment:
       POSTGRES_USER_FILE: /run/secrets/db_user
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password
@@ -22,6 +22,8 @@ services:
       - SYS_PTRACE
       - MKNOD
     restart: unless-stopped
+    user : 1000:1000  # Run as non-root user
+
   app:
     image: ghcr.io/baloo54/backend:latest
     depends_on:
