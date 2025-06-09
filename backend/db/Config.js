@@ -20,7 +20,7 @@ const pool = new Pool({
   port: 5432,
     ssl: {
     rejectUnauthorized: false, // Pour un certificat self-signed
-    ca: fs.readFileSync(path.resolve('./postgres/server.crt')).toString(),
+    ca: fs.readFileSync(path.resolve('./server.crt')).toString(),
   },
 });
 

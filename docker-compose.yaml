@@ -18,8 +18,6 @@ services:
     secrets:
       - db_user
       - db_password
-    ports:
-      - "5432:5432"
     networks:
       - my_encrypted_network
     command: ["postgres", "-c", "config_file=/etc/postgresql/conf/postgresql.conf"]
@@ -33,14 +31,11 @@ services:
       DB_PASSWORD_FILE: /run/secrets/db_password
       DB_HOST: db
       DB_NAME: mydb
-      PORT: 5000
     secrets:
       - db_user
       - db_password
     volumes:
       - ./certs/postgres:/app
-    expose:
-      - "5000"
     networks:
       - my_encrypted_network
 
