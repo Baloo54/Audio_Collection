@@ -7,20 +7,21 @@ services:
       POSTGRES_USER_FILE: /run/secrets/db_user
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password
       POSTGRES_DB: mydb
-      POSTGRES_SSL_CERT_FILE: /var/lib/postgresql/certs/server.crt
-      POSTGRES_SSL_KEY_FILE: /var/lib/postgresql/certs/server.key
     volumes:
       - db-data:/var/lib/postgresql/data
-      - ./certs/postgres/server.crt:/var/lib/postgresql/certs/server.crt:ro
-      - ./certs/postgres/server.key:/var/lib/postgresql/certs/server.key:ro
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-      - ./conf.d/postgres:/etc/postgresql/conf:ro  
     secrets:
       - db_user
       - db_password
     networks:
       - my_encrypted_network
-    command: ["postgres", "-c", "config_file=/etc/postgresql/conf/postgresql.conf"]
+    tmpfs:
+      - /var/lib/postgresql/tmp
+    cap_drop:
+      - NET_RAW
+      - SYS_PTRACE
+      - MKNOD
+    restart: unless-stopped
 
   app:
     image: ghcr.io/baloo54/backend:latest
@@ -34,24 +35,38 @@ services:
     secrets:
       - db_user
       - db_password
-    volumes:
-      - ./certs/postgres:/app/certs/
     networks:
       - my_encrypted_network
+    restart: unless-stopped
 
   nginx:
-    image: nginx:alpine
+    image : ghcr.io/baloo54/frontend:latest
     depends_on:
       - app
     ports:
-      - "443:443"
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+      - target: 443
+        published: 443
+        protocol: tcp
+        mode: host
     volumes:
-      - .conf.d/nginx:/etc/nginx/conf.d:ro
-      - .certs/nginx:/etc/nginx/certs:ro
-      - ./frontend/dist:/usr/share/nginx/html:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
     networks:
       - my_encrypted_network
-    
+    restart: unless-stopped
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; sleep infinity'"
+    networks:
+      - my_encrypted_network
 
 volumes:
   db-data:

@@ -22,6 +22,10 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 -keyout certs/postgres/server.key -out certs/postgres/server.crt \
 -subj "/CN=postgres"
 
+chown 70:70 certs/postgres/server.key
+chmod 640 certs/postgres/server.key
+
+
 echo "$DB_USER" | docker secret create db_user -
 echo "$DB_PASS" | docker secret create db_password -
 

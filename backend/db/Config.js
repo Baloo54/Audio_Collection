@@ -1,7 +1,6 @@
 // --- db/config.js ---
 import pkg from 'pg';
 import fs from 'fs';
-import path from 'path';
 
 const { Pool } = pkg;
 
@@ -19,10 +18,6 @@ const pool = new Pool({
   database: process.env.DB_NAME || 'mydb',
   password: readSecret('/run/secrets/db_password'),
   port: 5432,
-    ssl: {
-    rejectUnauthorized: false, // Pour un certificat self-signed
-    ca: fs.readFileSync(path.resolve('./certs/server.crt')).toString(),
-  },
 });
 
 export default pool;
