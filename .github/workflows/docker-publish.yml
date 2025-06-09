@@ -31,5 +31,3 @@ jobs:
         context: ./nginx
         push: true
         tags: ghcr.io/baloo54/frontend:latest
-    - name : Build and push Database Docker image
-      uses: docker/build-push-action@v4
