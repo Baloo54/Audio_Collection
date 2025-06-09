@@ -28,7 +28,7 @@ export default function DoneStep({ recordings, age, gender, consent, numPhrases,
         formData.append('consent', consent !== undefined ? consent.toString() : '');
         formData.append('numPhrases', numPhrases !== undefined ? numPhrases.toString() : '');
 
-        const response = await fetch('http://localhost/api/upload-zip', {
+        const response = await fetch('https://localhost/api/upload-zip', {
           method: 'POST',
           body: formData,
           credentials: 'include',          // IMPORTANT : pour envoyer les cookies de session
