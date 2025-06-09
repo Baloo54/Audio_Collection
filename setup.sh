@@ -14,11 +14,11 @@ docker secret rm db_password 2>/dev/null || true
 docker swarm init 2>/dev/null || true
 docker network create --driver overlay --opt encrypted my_encrypted_network
 
-chown 70:70 certs/postgres/server.key
-chmod 640 certs/postgres/server.key
-
 
 echo "$DB_USER" | docker secret create db_user -
 echo "$DB_PASS" | docker secret create db_password -
 
 echo "Secrets Docker créés."
+
+
+mkdir -p ./certs/selfsigned\nopenssl req -x509 -nodes -days 365 -newkey rsa:2048 \\n  -keyout ./certs/selfsigned/server.key \\n  -out ./certs/selfsigned/server.crt \\n  -subj "/CN=localhost"\n

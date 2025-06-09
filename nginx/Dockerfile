@@ -10,7 +10,8 @@ COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh \
     && addgroup -g 1001 -S nginxgroup \
     && adduser -u 1001 -S nginxuser -G nginxgroup \
-    && chown -R nginxuser:nginxgroup /etc/nginx /entrypoint.sh /var/cache/nginx /var/run /var/log/nginx
+    && chown -R nginxuser:nginxgroup /etc/nginx /entrypoint.sh /var/cache/nginx /var/run /var/log/nginx \
+    && mkdir -p /run && chown nginxuser:nginxgroup /run
 
 # Utilise un utilisateur non-root
 USER nginxuser
