@@ -18,6 +18,10 @@ const pool = new Pool({
   database: process.env.DB_NAME || 'mydb',
   password: readSecret('/run/secrets/db_password'),
   port: 5432,
+    ssl: {
+    rejectUnauthorized: false, // Pour un certificat self-signed
+    ca: fs.readFileSync(path.resolve('./postgres/server.crt')).toString(),
+  },
 });
 
 export default pool;

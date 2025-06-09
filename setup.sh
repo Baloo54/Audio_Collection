@@ -12,10 +12,15 @@ docker secret rm db_user 2>/dev/null || true
 docker secret rm db_password 2>/dev/null || true
 
 docker swarm init 2>/dev/null || true
+docker network create --driver overlay --opt encrypted my_encrypted_network
 
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
--keyout nginx/certs/server.key -out nginx/certs/server.crt \
+-keyout certs/nginx/server.key -out certs/nginx/server.crt \
 -subj "/CN=localhost"
+
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+-keyout certs/postgres/server.key -out certs/postgres/server.crt \
+-subj "/CN=postgres"
 
 echo "$DB_USER" | docker secret create db_user -
 echo "$DB_PASS" | docker secret create db_password -
