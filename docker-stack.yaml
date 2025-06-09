@@ -22,6 +22,7 @@ services:
       - SYS_PTRACE
       - MKNOD
     restart: unless-stopped
+    user: "999:999" # utilise un utilisateur non-root
 
   app:
     image: ghcr.io/baloo54/backend:latest
@@ -38,6 +39,9 @@ services:
     networks:
       - my_encrypted_network
     restart: unless-stopped
+    volumes:
+      - app-data:/tmp/audio_uploads
+      
 
   nginx:
     image : ghcr.io/baloo54/frontend:latest
@@ -56,6 +60,7 @@ services:
       - ./certbot/conf:/etc/letsencrypt:ro
       - ./certbot/www:/var/www/certbot
       - ./nginx/certs/selfsigned:/etc/nginx/certs/selfsigned:ro
+      - ./nginx/html:/usr/share/nginx/html:ro
     networks:
       - my_encrypted_network
     restart: unless-stopped
@@ -71,6 +76,7 @@ services:
 
 volumes:
   db-data:
+  app-data:
 
 secrets:
   db_user:
