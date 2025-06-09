@@ -1,6 +1,7 @@
 // --- db/config.js ---
 import pkg from 'pg';
 import fs from 'fs';
+import path from 'path';
 
 const { Pool } = pkg;
 
