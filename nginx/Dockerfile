@@ -1,6 +1,11 @@
 FROM nginx:alpine
 
-# Crée un utilisateur non-root et rend l'entrée exécutable
+# Copie les fichiers nécessaires AVANT de les manipuler
+COPY entrypoint.sh /entrypoint.sh
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY conf.d/default.conf /etc/nginx/conf.d/default.conf
+
+# Crée un utilisateur non-root et ajuste les permissions
 RUN chmod +x /entrypoint.sh \
     && addgroup -g 1001 -S nginxgroup \
     && adduser -u 1001 -S nginxuser -G nginxgroup \
@@ -8,18 +13,12 @@ RUN chmod +x /entrypoint.sh \
     && mkdir -p /run && chown nginxuser:nginxgroup /run \
     && rm /etc/nginx/conf.d/default.conf
 
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY conf.d/default.conf /etc/nginx/conf.d/default.conf
-
-# expose les ports
+# Expose les ports HTTP et HTTPS
 EXPOSE 80 443
-
-# Copie l'éventuel script de démarrage
-COPY entrypoint.sh /entrypoint.sh
 
 # Utilise un utilisateur non-root
 USER nginxuser
 
-# Définition du point d'entrée et commande de lancement
+# Définition du point d'entrée et de la commande
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]
