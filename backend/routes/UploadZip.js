@@ -6,7 +6,6 @@ import { insertSubmission } from '../db/Insert.js';
 
 const router = express.Router();
 const uploadDir = path.join('/tmp/audio_uploads');
-fs.mkdirSync(uploadDir, { recursive: true });
 
 // Configuration sécurisée de Multer
 const storage = multer.diskStorage({
