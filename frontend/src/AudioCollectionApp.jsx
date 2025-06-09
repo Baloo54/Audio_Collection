@@ -31,6 +31,25 @@ export default function AudioCollectionApp() {
   const mediaRecorderRef = useRef(null); // référence à l'objet MediaRecorder
   const chunksRef = useRef([]); // buffer temporaire des données audio
 
+  // === Token CSRF ===
+  const [csrfToken, setCsrfToken] = useState('');
+
+  // Récupération du token CSRF au montage du composant
+  useEffect(() => {
+    async function fetchCsrfToken() {
+      try {
+        const res = await fetch('http://localhost:5000/api/csrf-token', {
+          credentials: 'include', // important pour les cookies
+        });
+        const data = await res.json();
+        setCsrfToken(data.csrfToken);
+      } catch (error) {
+        console.error('Erreur récupération token CSRF:', error);
+      }
+    }
+    fetchCsrfToken();
+  }, []);
+
   // Sync de la classe dark-mode sur body à chaque changement
   useEffect(() => {
     if (darkMode) {
@@ -178,6 +197,7 @@ export default function AudioCollectionApp() {
           gender={gender}
           consent={consent}
           numPhrases={phraseCount}
+          csrfToken={csrfToken}
           onReset={resetSession}
         />
       )}

@@ -1,53 +1,56 @@
 import React, { useState } from 'react';
 import JSZip from 'jszip';
 
-export default function DoneStep({ recordings, age, gender, consent, numPhrases, onReset }) {
+export default function DoneStep({ recordings, age, gender, consent, numPhrases, csrfToken, onReset }) {
   const [isSending, setIsSending] = useState(false);
 
-    const handleSendData = async () => {
-    setIsSending(true);
+  const handleSendData = async () => {
+      setIsSending(true);
 
-    try {
-      const zip = new JSZip();
+      try {
+        const zip = new JSZip();
 
-      recordings.forEach(({ audio }, index) => {
-        const fileName = `audio_${index + 1}.webm`;
-        zip.file(fileName, audio);
-      });
+        recordings.forEach(({ audio }, index) => {
+          const fileName = `audio_${index + 1}.webm`;
+          zip.file(fileName, audio);
+        });
 
-      const zipBlob = await zip.generateAsync({ type: 'blob' });
+        const zipBlob = await zip.generateAsync({ type: 'blob' });
 
-      const formData = new FormData();
-      formData.append('audioZip', zipBlob, 'audios.zip');
+        const formData = new FormData();
+        formData.append('audioZip', zipBlob, 'audios.zip');
 
-      const phrasesArray = recordings.map(r => r.phrase);
-      formData.append('phrases', JSON.stringify(phrasesArray));
+        const phrasesArray = recordings.map(r => r.phrase);
+        formData.append('phrases', JSON.stringify(phrasesArray));
 
-      formData.append('age', age ?? '');
-      formData.append('gender', gender ?? '');
-      formData.append('consent', consent !== undefined ? consent.toString() : '');
-      formData.append('numPhrases', numPhrases !== undefined ? numPhrases.toString() : '');
+        formData.append('age', age ?? '');
+        formData.append('gender', gender ?? '');
+        formData.append('consent', consent !== undefined ? consent.toString() : '');
+        formData.append('numPhrases', numPhrases !== undefined ? numPhrases.toString() : '');
 
-      const response = await fetch('http://localhost:5000/api/upload-zip', {
-        method: 'POST',
-        body: formData,
-      });
+        const response = await fetch('http://localhost:5000/api/upload-zip', {
+          method: 'POST',
+          body: formData,
+          credentials: 'include',          // IMPORTANT : pour envoyer les cookies de session
+          headers: {
+            'X-CSRF-Token': csrfToken,    // <-- Ajout du header CSRF
+          },
+        });
 
-      if (response.ok) {
-        // Pas besoin de parser, accepte même une réponse vide
-        alert('✅ Données envoyées avec succès.');
-      } else {
-        const errorText = await response.text();
-        console.error('Erreur serveur:', errorText);
-        alert('❌ Erreur lors de l’envoi des données.');
+        if (response.ok) {
+          alert('✅ Données envoyées avec succès.');
+        } else {
+          const errorText = await response.text();
+          console.error('Erreur serveur:', errorText);
+          alert('❌ Erreur lors de l’envoi des données.');
+        }
+      } catch (error) {
+        console.error('Erreur réseau ou inattendue:', error);
+        alert('❌ Erreur réseau : impossible de contacter le serveur.');
+      } finally {
+        setIsSending(false);
       }
-    } catch (error) {
-      console.error('Erreur réseau ou inattendue:', error);
-      alert('❌ Erreur réseau : impossible de contacter le serveur.');
-    } finally {
-      setIsSending(false);
-    }
-  };
+    };
 
 
   return (
