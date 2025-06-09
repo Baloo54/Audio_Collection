@@ -33,14 +33,16 @@ services:
       - "5000"
 
   nginx:
-    build:
-      context: .
-      dockerfile: Dockerfile.nginx  # ou ./nginx/Dockerfile si tu préfères le placer dans un dossier
+    image: nginx:alpine
     depends_on:
       - app
     ports:
       - "80:80"
       - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+      - ./frontend/dist:/usr/share/nginx/html:ro
 
 volumes:
   db-data:
