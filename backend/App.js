@@ -38,9 +38,5 @@ app.get('/api/csrf-token', (req, res) => {
 // 📁 Routes d’upload protégées par CSRF
 app.use('/api', uploadZipRoute);
 
-// Route de test
-app.get('/', (_req, res) => {
-  res.send('✅ API opérationnelle avec CSRF');
-});
 
 export default app;
