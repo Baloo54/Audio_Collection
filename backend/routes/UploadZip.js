@@ -1,4 +1,3 @@
-// --- routes/uploadZip.js ---
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
@@ -6,11 +5,10 @@ import fs from 'fs';
 import { insertSubmission } from '../db/Insert.js';
 
 const router = express.Router();
-
-// chemin de stockage des fichiers ZIP
 const uploadDir = path.join('/tmp/audio_uploads');
 fs.mkdirSync(uploadDir, { recursive: true });
 
+// Configuration sécurisée de Multer
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, uploadDir),
   filename: (_req, file, cb) => {
@@ -19,7 +17,17 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 Mo max
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype === 'application/zip' || file.mimetype === 'application/x-zip-compressed') {
+      cb(null, true);
+    } else {
+      cb(new Error('Seuls les fichiers ZIP sont autorisés.'));
+    }
+  },
+});
 
 router.post('/upload-zip', upload.single('audioZip'), async (req, res) => {
   try {
@@ -37,7 +45,6 @@ router.post('/upload-zip', upload.single('audioZip'), async (req, res) => {
       return res.status(400).json({ error: 'Aucun fichier ZIP reçu.' });
     }
 
-    // Sanitize & validate inputs
     const ageStr = age.trim();
     const genderStr = gender.trim();
     const consentBool = consent === 'true';
@@ -59,7 +66,7 @@ router.post('/upload-zip', upload.single('audioZip'), async (req, res) => {
 
     res.status(200).json({ message: 'Données enregistrées avec succès.', userId });
   } catch (err) {
-    console.error('Erreur lors du traitement de la requête :', err);
+    console.error('Erreur lors du traitement de la requête :', err.message);
     res.status(500).json({ error: 'Erreur serveur.' });
   }
 });
