@@ -10,7 +10,7 @@ export default function FetchSessionsStep({ apiKey }) {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('sessions', {
+      const res = await fetch('/api/sessions', {
         headers: {
           'x-api-key': apiKey,
         },
@@ -32,7 +32,7 @@ export default function FetchSessionsStep({ apiKey }) {
   // Télécharge le ZIP d'une session
   const downloadZip = async (sessionId, zipFilename = 'recordings.zip') => {
     try {
-      const res = await fetch(`/sessions/${sessionId}/download`, {
+      const res = await fetch(`/api/sessions/${sessionId}/download`, {
         headers: {
           'x-api-key': apiKey,
         },
