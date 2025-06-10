@@ -61,12 +61,19 @@ check_dependencies() {
 setup_docker_swarm() {
     print_step "Configuration de Docker Swarm..."
     
-    if docker info --format '{{.Swarm.LocalNodeState}}' | grep -q "active"; then
+    if docker info 2>/dev/null | grep -q "Swarm: active"; then
         print_info "Docker Swarm est déjà initialisé"
     else
         print_info "Initialisation de Docker Swarm..."
-        docker swarm init 2>/dev/null || print_error "Impossible d'initialiser Docker Swarm"
-        print_success "Docker Swarm initialisé"
+        # Utiliser l'adresse IPv4 de l'interface wlp1s0
+        ADVERTISE_ADDR=$(ip addr show wlp1s0 | grep 'inet ' | awk '{print $2}' | cut -d'/' -f1 | head -n1)
+        
+        if [ -n "$ADVERTISE_ADDR" ]; then
+            docker swarm init --advertise-addr "$ADVERTISE_ADDR" || print_error "Impossible d'initialiser Docker Swarm"
+            print_success "Docker Swarm initialisé"
+        else
+            print_error "Impossible de trouver une adresse IPv4 sur wlp1s0"
+        fi
     fi
 }
 
