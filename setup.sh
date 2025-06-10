@@ -146,8 +146,8 @@ create_api_secret() {
     API_KEY=$(openssl rand -hex 32)
     echo -e "${PURPLE}Clé API générée :${NC} $API_KEY"
     
-    echo "$API_KEY" | docker secret create api_key - || print_error "Impossible de créer le secret api_key"
-    
+    echo "$API_KEY" | docker secret create api_key - >/dev/null 2>&1 || print_error "Impossible de créer le secret api_key"
+
     print_success "Secret API créé"
     print_info "⚠️  Sauvegardez cette clé API dans un endroit sûr !"
 }
@@ -177,26 +177,14 @@ create_certificates() {
     openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
         -keyout "$CERT_DIR/server.key" \
         -out "$CERT_DIR/server.crt" \
-        -subj "/CN=localhost" \
-        -config <(
-            echo '[req]'
-            echo 'distinguished_name = req'
-            echo '[v3_req]'
-            echo 'keyUsage = keyEncipherment, dataEncipherment'
-            echo 'extendedKeyUsage = serverAuth'
-            echo 'subjectAltName = @alt_names'
-            echo '[alt_names]'
-            echo 'DNS.1 = localhost'
-            echo 'DNS.2 = *.localhost'
-            echo 'IP.1 = 127.0.0.1'
-            echo 'IP.2 = ::1'
-        ) \
-        -extensions v3_req 2>/dev/null || print_error "Impossible de générer les certificats"
+        -subj "/CN=localhost" 2>/dev/null || print_error "Impossible de générer les certificats"
     
     # Sécurisation des permissions
-    chmod 600 "$CERT_DIR/server.key"
+    chmod 640 "$CERT_DIR/server.key"
     chmod 644 "$CERT_DIR/server.crt"
     
+    sudo chown 1001:1001 "$CERT_DIR/server.key" || print_error "Impossible de changer le propriétaire du fichier clé"
+
     print_success "Certificats SSL créés dans $CERT_DIR/"
     print_info "Certificat valide pour 365 jours"
 }
