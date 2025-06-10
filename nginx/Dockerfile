@@ -4,6 +4,7 @@ FROM nginx:alpine
 COPY entrypoint.sh /entrypoint.sh
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY conf.d/default.conf /etc/nginx/conf.d/default.conf
+COPY ./nginx/html /usr/share/nginx/html
 
 # Crée un utilisateur non-root et ajuste les permissions
 RUN chmod +x /entrypoint.sh \

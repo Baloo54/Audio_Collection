@@ -58,7 +58,6 @@ services:
         mode: host
     volumes:
       - ./nginx/certs/selfsigned:/etc/nginx/certs/selfsigned:ro
-      - ./nginx/html:/usr/share/nginx/html:ro
     networks:
       - my_encrypted_network
     restart: unless-stopped

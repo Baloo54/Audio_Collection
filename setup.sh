@@ -15,7 +15,7 @@ PURPLE='\033[0;35m'
 NC='\033[0m' # No Color
 
 # Configuration
-CERT_DIR="./certs/selfsigned"
+CERT_DIR="./nginx/certs/selfsigned"
 NETWORK_NAME="my_encrypted_network"
 
 # =============================================================================
