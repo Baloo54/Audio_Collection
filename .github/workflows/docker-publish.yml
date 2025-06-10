@@ -31,9 +31,3 @@ jobs:
         context: ./nginx
         push: true
         tags: ghcr.io/baloo54/frontend:latest
-    - name : build and push postgres image
-      uses: docker/build-push-action@v4
-      with:
-        context: ./postgres
-        push: true
-        tags: ghcr.io/baloo54/postgres:latest

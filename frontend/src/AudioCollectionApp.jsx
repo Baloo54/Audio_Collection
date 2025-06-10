@@ -3,43 +3,48 @@ import GetRandomPhrases from '@/components/GetRandomPhrases';
 import IntroStep from '@/components/IntroStep.jsx';
 import RecordStep from '@/components/RecordStep.jsx';
 import DoneStep from '@/components/DoneStep.jsx';
+import FetchSessionsStep from '@/components/FetchSessionsStep.jsx';
 
 /**
  * Composant principal de l'application de collecte vocale.
  * Il orchestre les différentes étapes : introduction, enregistrement, finalisation.
  */
 export default function AudioCollectionApp() {
-  // === ÉTAT DE L'APPLICATION ===
-  const [step, setStep] = useState('intro'); // étape courante : intro | record | done
+  // État pour gérer l'étape actuelle : 'intro', 'record' ou 'done'
+  const [step, setStep] = useState('intro');
 
-  // === DARK MODE ===
+  // État pour le mode sombre (true = sombre, false = clair)
   const [darkMode, setDarkMode] = useState(false);
 
-  // === INFORMATIONS UTILISATEUR ===
+  // Données utilisateur collectées dans l'intro
   const [age, setAge] = useState('');
   const [gender, setGender] = useState('');
   const [consent, setConsent] = useState(false);
-  const [phraseCount, setPhraseCount] = useState(5); // nombre de phrases à enregistrer
+  const [phraseCount, setPhraseCount] = useState(5);
 
-  // === ENREGISTREMENT ===
-  const [phraseIndex, setPhraseIndex] = useState(0); // index de la phrase actuelle
-  const [recordings, setRecordings] = useState([]); // liste des enregistrements effectués
-  const [isRecording, setIsRecording] = useState(false); // indicateur d’enregistrement en cours
-  const [phrasesToRecord, setPhrasesToRecord] = useState([]); // phrases sélectionnées aléatoirement
+  // Gestion de l'enregistrement des phrases
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [recordings, setRecordings] = useState([]);
+  const [isRecording, setIsRecording] = useState(false);
+  const [phrasesToRecord, setPhrasesToRecord] = useState([]);
 
-  // === RÉFÉRENCES POUR LE MEDIA RECORDER ===
-  const mediaRecorderRef = useRef(null); // référence à l'objet MediaRecorder
-  const chunksRef = useRef([]); // buffer temporaire des données audio
+  // Références pour le MediaRecorder et ses données
+  const mediaRecorderRef = useRef(null);
+  const chunksRef = useRef([]);
 
-  // === Token CSRF ===
+  // Token CSRF pour sécuriser les requêtes POST
   const [csrfToken, setCsrfToken] = useState('');
 
-  // Récupération du token CSRF au montage du composant
+  // Gestion de la clé API et affichage du panneau de sessions
+  const [apiKey, setApiKey] = useState('');
+  const [showFetchSessions, setShowFetchSessions] = useState(false);
+
+  // Récupération du token CSRF dès le montage du composant
   useEffect(() => {
     async function fetchCsrfToken() {
       try {
         const res = await fetch('/api/csrf-token', {
-          credentials: 'include', // important pour les cookies
+          credentials: 'include',
         });
         const data = await res.json();
         setCsrfToken(data.csrfToken);
@@ -50,7 +55,7 @@ export default function AudioCollectionApp() {
     fetchCsrfToken();
   }, []);
 
-  // Sync de la classe dark-mode sur body à chaque changement
+  // Appliquer ou retirer la classe dark-mode sur le body selon l'état darkMode
   useEffect(() => {
     if (darkMode) {
       document.body.classList.add('dark-mode');
@@ -60,7 +65,7 @@ export default function AudioCollectionApp() {
   }, [darkMode]);
 
   /**
-   * Démarre l'enregistrement vocal à l'aide de l'API MediaRecorder.
+   * Démarre l'enregistrement audio via l'API MediaRecorder.
    */
   const startRecording = async () => {
     try {
@@ -70,10 +75,12 @@ export default function AudioCollectionApp() {
       mediaRecorderRef.current = mediaRecorder;
       chunksRef.current = [];
 
+      // Collecte les données audio lors de l'enregistrement
       mediaRecorder.ondataavailable = (e) => {
         chunksRef.current.push(e.data);
       };
 
+      // À la fin de l'enregistrement, crée un Blob audio et l'ajoute aux enregistrements
       mediaRecorder.onstop = () => {
         const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
         const phrase = phrasesToRecord[phraseIndex];
@@ -88,7 +95,7 @@ export default function AudioCollectionApp() {
   };
 
   /**
-   * Arrête l'enregistrement vocal.
+   * Arrête l'enregistrement en cours.
    */
   const stopRecording = () => {
     mediaRecorderRef.current?.stop();
@@ -96,7 +103,7 @@ export default function AudioCollectionApp() {
   };
 
   /**
-   * Réenregistre la phrase actuelle (supprime la dernière).
+   * Permet de réenregistrer la phrase courante en supprimant la dernière prise.
    */
   const restartPhrase = () => {
     setRecordings((prev) => prev.slice(0, -1));
@@ -104,7 +111,7 @@ export default function AudioCollectionApp() {
   };
 
   /**
-   * Passe à la phrase suivante ou termine si c’est la dernière.
+   * Passe à la phrase suivante ou termine la session si c'était la dernière.
    */
   const nextPhrase = () => {
     if (phraseIndex + 1 < phrasesToRecord.length) {
@@ -115,7 +122,7 @@ export default function AudioCollectionApp() {
   };
 
   /**
-   * Réinitialise complètement l'application (nouvelle session).
+   * Réinitialise toute la session pour repartir de zéro.
    */
   const resetSession = () => {
     setStep('intro');
@@ -126,10 +133,12 @@ export default function AudioCollectionApp() {
     setPhraseIndex(0);
     setRecordings([]);
     setPhrasesToRecord([]);
+    setShowFetchSessions(false);
+    setApiKey('');
   };
 
   /**
-   * Gère le démarrage d'une session d'enregistrement (post-intro).
+   * Initialise les phrases à enregistrer et passe à l'étape d'enregistrement.
    */
   const handleStart = () => {
     const selectedPhrases = GetRandomPhrases(phraseCount);
@@ -137,33 +146,43 @@ export default function AudioCollectionApp() {
     setStep('record');
   };
 
-  // Composant bouton dark mode (simple)
+  /**
+   * Composant bouton pour basculer le mode sombre.
+   */
   const DarkModeToggle = () => (
     <button
       aria-label="Toggle dark mode"
       onClick={() => setDarkMode((prev) => !prev)}
-      style={{
-        position: 'fixed',
-        top: 10,
-        right: 10,
-        padding: '8px 12px',
-        cursor: 'pointer',
-        borderRadius: '6px',
-        border: 'none',
-        backgroundColor: darkMode ? '#444' : '#eee',
-        color: darkMode ? '#eee' : '#444',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-        zIndex: 9999,
-      }}
+      className="dark-mode-toggle"
     >
       {darkMode ? '☀️ Light' : '🌙 Dark'}
     </button>
   );
 
-  // === RENDU SELON L'ÉTAPE ACTUELLE ===
   return (
     <>
       <DarkModeToggle />
+
+      {/* Zone de saisie de la clé API pour charger les sessions */}
+      <div className="api-key-input-container">
+        <input
+          id="apiKeyInput"
+          type="text"
+          value={apiKey}
+          onChange={(e) => setApiKey(e.target.value)}
+          placeholder="Entrez votre clé API"
+          className="api-key-input"
+        />
+        <button
+          onClick={() => setShowFetchSessions(true)}
+          disabled={!apiKey.trim()}
+          className="api-key-load-button"
+        >
+          Charger
+        </button>
+      </div>
+
+      {/* Étape d'introduction avec formulaire utilisateur */}
       {step === 'intro' && (
         <IntroStep
           age={age}
@@ -177,6 +196,8 @@ export default function AudioCollectionApp() {
           onStart={handleStart}
         />
       )}
+
+      {/* Étape d'enregistrement des phrases */}
       {step === 'record' && (
         <RecordStep
           phraseIndex={phraseIndex}
@@ -190,6 +211,8 @@ export default function AudioCollectionApp() {
           goToDone={() => setStep('done')}
         />
       )}
+
+      {/* Étape finale : soumission et fin de session */}
       {step === 'done' && (
         <DoneStep
           recordings={recordings}
@@ -201,6 +224,9 @@ export default function AudioCollectionApp() {
           onReset={resetSession}
         />
       )}
+
+      {/* Affichage facultatif du panneau de récupération des sessions */}
+      {showFetchSessions && <FetchSessionsStep apiKey={apiKey} />}
     </>
   );
 }

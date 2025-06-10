@@ -2,13 +2,14 @@ version: '3.8'
 
 services:
   db:
-    image: ghcr.io/baloo54/postgres:latest
+    image: postgres:15-alpine
     environment:
       POSTGRES_USER_FILE: /run/secrets/db_user
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password
       POSTGRES_DB: mydb
     volumes:
       - db-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     secrets:
       - db_user
       - db_password
@@ -21,7 +22,6 @@ services:
       - SYS_PTRACE
       - MKNOD
     restart: unless-stopped
-    user : 1000:1000  # Run as non-root user
 
   app:
     image: ghcr.io/baloo54/backend:latest
@@ -35,6 +35,7 @@ services:
     secrets:
       - db_user
       - db_password
+      - api_key
     networks:
       - my_encrypted_network
     restart: unless-stopped
@@ -56,22 +57,11 @@ services:
         protocol: tcp
         mode: host
     volumes:
-      - ./certbot/conf:/etc/letsencrypt:ro
-      - ./certbot/www:/var/www/certbot
       - ./nginx/certs/selfsigned:/etc/nginx/certs/selfsigned:ro
       - ./nginx/html:/usr/share/nginx/html:ro
     networks:
       - my_encrypted_network
     restart: unless-stopped
-
-  certbot:
-    image: certbot/certbot
-    volumes:
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; sleep infinity'"
-    networks:
-      - my_encrypted_network
 
 volumes:
   db-data:
@@ -81,6 +71,8 @@ secrets:
   db_user:
     external: true
   db_password:
+    external: true
+  api_key:
     external: true
 
 networks:

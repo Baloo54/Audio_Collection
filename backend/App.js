@@ -1,42 +1,32 @@
 import express from 'express';
-import helmet from 'helmet';
-import cors from 'cors';
-import cookieParser from 'cookie-parser';
-import csrf from 'csurf';
-
+import { SecurityHeaders, CorsOptions } from './midleware/SecurityHeaders.js';
+import { cookieParserMiddleware, csrfProtection, sendCsrfToken } from './midleware/Crsf.js';
 import uploadZipRoute from './routes/UploadZip.js';
+import getSessionsRoute from './routes/GetSessions.js';
+import downloadZipRoute from './routes/DownloadZip.js';
 
 const app = express();
 
-// 🔐 Headers de sécurité
-app.use(helmet());
+// 🔐 Sécurité
+app.use(SecurityHeaders);
+app.use(cookieParserMiddleware);
+app.use(CorsOptions);
 
-// 🔐 Cookies nécessaires pour CSRF
-app.use(cookieParser());
-
-// 🌐 CORS - adapte l'origine à ton front
-app.use(cors({
-  origin: process.env.FRONT_ORIGIN || 'http://localhost:3000',
-  credentials: true,
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type', 'X-CSRF-Token'],
-}));
-
-// 📦 Parsing JSON et form-data
+// 📦 Parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 🔐 Middleware CSRF
-const csrfProtection = csrf({ cookie: true });
+// 🔐 CSRF
 app.use(csrfProtection);
+app.get('/api/csrf-token', sendCsrfToken);
 
-// ✅ Route pour récupérer le token CSRF (appelé au chargement du front)
-app.get('/api/csrf-token', (req, res) => {
-  res.json({ csrfToken: req.csrfToken() });
-});
-
-// 📁 Routes d’upload protégées par CSRF
+// 📁 Routes
 app.use('/api', uploadZipRoute);
-
+app.use('/api', getSessionsRoute);
+app.use('/api', downloadZipRoute);
 
 export default app;
+
+
+
+

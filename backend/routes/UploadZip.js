@@ -1,7 +1,6 @@
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
-import fs from 'fs';
 import { insertSubmission } from '../db/Insert.js';
 
 const router = express.Router();

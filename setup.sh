@@ -22,3 +22,6 @@ echo "Secrets Docker créés."
 
 
 mkdir -p ./certs/selfsigned\nopenssl req -x509 -nodes -days 365 -newkey rsa:2048 \\n  -keyout ./certs/selfsigned/server.key \\n  -out ./certs/selfsigned/server.crt \\n  -subj "/CN=localhost"\n
+
+openssl rand -hex 32 | docker secret create api_key -
+
